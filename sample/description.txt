@@ -1,2 +1,2 @@
 this is sample data of Furuno radar
-all data are netCDF, CSV version is available upon request.
+all data are NetCDF, *.CSV format file is available upon request.
