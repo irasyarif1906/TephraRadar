@@ -12,10 +12,10 @@ library(psych)
 
 set.seed(234)
 D1 = rtrunc(30000, spec="gamma", a=0.007,b=0.015, 1, 100)
-set.seed(324)
+set.seed(123)
 D2 = rtrunc(30000, spec="gamma", a=0.015,b=0.35, 1, 10)
-set.seed(423)
-D3 = rtrunc(30000, spec="gamma", a=0.35,b=6.0, 1, 1)
+set.seed(122)
+D3 = rtrunc(30000, spec="gamma", a=0.35,b=6.0, 1, 1.52)
 
 mysamp <- function(n, m, s, lwr, upr, rounding) {
   samp <- round(rnorm(n, m, s), rounding)
@@ -24,9 +24,12 @@ mysamp <- function(n, m, s, lwr, upr, rounding) {
   samp
 }
 
-C1 = mysamp(n=1000, m=0.1, s=0.15, lwr=0.01, upr=0.5, rounding=3)
-C2 = mysamp(n=1000, m=1, s=0.5, lwr=0.5, upr=2.0, rounding=3)
-C3 = mysamp(n=1000, m=5, s=1, lwr=2, upr=8.0, rounding=3)
+set.seed(121)
+C1 = mysamp(n=30000, m=0.1, s=0.15, lwr=0.01, upr=0.5, rounding=3)
+set.seed(125)
+C2 = mysamp(n=30000, m=1, s=0.5, lwr=0.5, upr=2.0, rounding=3)
+set.seed(126)
+C3 = mysamp(n=30000, m=5, s=1, lwr=2, upr=8.0, rounding=3)
 
 #C1 = 0.1
 #C2 = 1
@@ -162,9 +165,9 @@ ggsave(
   plot = marrangeGrob(list(p1,p2,p3, p4,p5,p6,p7,p8,p9), nrow=3, ncol=3), 
   width = 15, height = 9)
 
-write.table(fa, "GSDfa.csv", col.names=T, row.names=T, sep=",")
-write.table(ca, "GSDca.csv", col.names=T, row.names=T, sep=",")
-write.table(la, "GSDla.csv", col.names=T, row.names=T, sep=",")
+# write.table(fa, "GSDfa.csv", col.names=T, row.names=T, sep=",")
+# write.table(ca, "GSDca.csv", col.names=T, row.names=T, sep=",")
+# write.table(la, "GSDla.csv", col.names=T, row.names=T, sep=",")
 
 ZH_fa1 = (Nd_fa1*10/2^8)*(0.01^7)*factorial(7)
 dbz_fa1 = 10*log10(ZH_fa1)
@@ -227,17 +230,17 @@ Zhm_la1 = Noisify(dbz_la1)
 Zhm_la2 = Noisify(dbz_la2)
 Zhm_la3 = Noisify(dbz_la3)
 
-data.frame(fa, zhh=Zhm_fa1, ca=Ca_fa1, ra=Ra_fa1) -> fa1
-data.frame(fa, zhh=Zhm_fa2, ca=Ca_fa2, ra=Ra_fa2) -> fa2
-data.frame(fa, zhh=Zhm_fa3, ca=Ca_fa3, ra=Ra_fa3) -> fa3
+data.frame(fa, zh=Zhm_fa1, ca=Ca_fa1, ra=Ra_fa1) -> fa1
+data.frame(fa, zh=Zhm_fa2, ca=Ca_fa2, ra=Ra_fa2) -> fa2
+data.frame(fa, zh=Zhm_fa3, ca=Ca_fa3, ra=Ra_fa3) -> fa3
 
-data.frame(ca, zhh=Zhm_ca1, ca=Ca_ca1, ra=Ra_ca1) -> ca1
-data.frame(ca, zhh=Zhm_ca2, ca=Ca_ca2, ra=Ra_ca2) -> ca2
-data.frame(ca, zhh=Zhm_ca3, ca=Ca_ca3, ra=Ra_ca3) -> ca3
+data.frame(ca, zh=Zhm_ca1, ca=Ca_ca1, ra=Ra_ca1) -> ca1
+data.frame(ca, zh=Zhm_ca2, ca=Ca_ca2, ra=Ra_ca2) -> ca2
+data.frame(ca, zh=Zhm_ca3, ca=Ca_ca3, ra=Ra_ca3) -> ca3
 
-data.frame(la, zhh=Zhm_la1, ca=Ca_la1, ra=Ra_la1) -> la1
-data.frame(la, zhh=Zhm_la2, ca=Ca_la2, ra=Ra_la2) -> la2
-data.frame(la, zhh=Zhm_la3, ca=Ca_la3, ra=Ra_la3) -> la3
+data.frame(la, zh=Zhm_la1, ca=Ca_la1, ra=Ra_la1) -> la1
+data.frame(la, zh=Zhm_la2, ca=Ca_la2, ra=Ra_la2) -> la2
+data.frame(la, zh=Zhm_la3, ca=Ca_la3, ra=Ra_la3) -> la3
 
 # ##coarse class zhh-ca
 # p4 <- ggplot(ca1, aes(zhh, ca)) +
@@ -302,6 +305,10 @@ data.frame(zh =Zhm_la3, c= rep(9,length(Zhm_la3))) -> class09
 
 #list(class01, class02, class03,class04, class05, class06,class07, class08, class09) -> cl.all
 cl.all <- mget(ls(pattern = "class0")) 
+list(fa1, fa2, fa3, ca1, ca2, ca3,la1, la2, la3) -> classes
+write <-mapply(write.table,
+               x=classes, file=paste0(names(cl.all), ".csv"),
+               MoreArgs=list(row.names=FALSE, col.names=T,sep=","))
 
 set.seed(101)
 sample <- lapply(cl.all, function(x)
@@ -351,4 +358,7 @@ print(paste0("mean error rate=", round(mean_error,3)))
 write.csv(tab, "table.contingency.csv")
 
 saveRDS(model, "class_bayesian2.rds")
+
+source("scr_powerlaw_model.R")
+
 #my_model <- readRDS("class_bayesian.rds")
